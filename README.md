@@ -1,162 +1,163 @@
-**Welcome to the SKO NoSQL journey!**
-You are seeing the stock data fullStack demo app. This app is built using [AstraDB](https://docs.datastax.com/en/astra-db-serverless/index.html), [Astra Data API](https://docs.datastax.com/en/astra-db-serverless/api-reference/dataapiclient.html), [Data API TypeScript client](https://docs.datastax.com/en/astra-db-serverless/api-reference/typescript-client.html), [Next.js](https://nextjs.org/docs), and [Vercel](https://vercel.com/).
+# NoSQL workshop
 
-In this journey, you will follow the README to implement the app in two paths:
-1. **Data API Collection**: [Learn more](https://docs.datastax.com/en/astra-db-serverless/api-reference/collections.html)
-2. **Data API Table**: [Learn more](https://docs.datastax.com/en/astra-db-serverless/api-reference/tables.html)
+In this workshop, you will build an app to display stock market data.
 
-You will see the app UI on your local machine and eventually deploy it to Vercel.
+First, you will use the Data API and collections to build the app.
+Then, you will use the Data API and tables to build the app.
 
-We aim to provide an experience where you can appreciate the fast speed of Astra for reading/writing data, the ease of using the Data API for interacting with your Astra DB, and the seamless transition between using Data API collections and tables.
+todo more info about what they will learn/why this is something our users care about
 
-[Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+TODO workshop presenter should give a quick demo of the app. Could add a movie to the readme too.
 
+## Copy the base components of the app
 
+To focus on learning how to use the Data API to interact with data, we have created the app UI for you. We have also provided you with data files.
 
-## Prerequisites
+TODO make a branch with just the starting files
 
-To get started with this project, ensure you have the following:
+TODO briefly describe the starting files. (Yuqi's original readme has a nice outline already.)
 
-- **Node.js**: Version 22 or above. 
-- **Astra DB**: Obtain the endpoint and token.
-- **GitHub Account**: For git operation and vercel use.
-- **Vercel Account**: A free vercel account for deploying the app in vercel.
+TODO run prettier on the starting files
 
-### Astra DB prerequisites
-1. Create a database in astra.
-2. Get the endpoint and token.
-![database details example](./public/astra-requirements.png)
+## Install the requirements
 
+Run `npm install` to install the requirements for the app. [TODO if we are having them use codespaces, this might run automatically when the codespace starts.]
 
-## project Structure
+TODO maybe talk about the requirements here? Or just mention that this project uses the TS datastax client.
 
-The project directory is organized as follows:
-(To minimize the distractions, we will only introduce the some components, and emphesize the parts you will be working on)
+## Create a database and store your credentials
 
-```
-/nosql-journey-demo
-├── .env, 
-├── .env.example 
-├── node_modules
-├── package.json
-├── package-lock.json
-├── README.md
-├── README1.md
-├── /src
-│   ├── /app
-│   │   ├── /dashboard
-│   │   │   ├── /[symbol]
-│   │   |   ├── page.tsx
-│   ├── /components
-│   │   ├── /ui
-│   │   ├── data-table.tsx
-│   ├── /lib
-│   │   ├── /datasets
-│   │   │   ├── NVDA_1Y.csv
-│   │   │   ├── MSFT_1Y.csv
-│   │   │   ├── (other dataset files...)
-│   │   ├── seed.ts
-│   │   ├── model.ts
-│   │   ├── astradb.ts
-```
+TODO do all participants already have a database?
 
-- `/.env.example`: File for you to copy and create .env file.
-- `/src/app/dashboard/page.tsx`: Stock dashboard component that you will see in the UI.
-- `/libs/datasets`: Nasdaq stocks and trades csv data files.
-- `/libs/model.ts`: Export data model and also funtions to read corresponding data from Astra.
-- `/libs/astradb.ts`: Export Data API typescript Astra client.
-- `/libs/datasets`: Nasdaq stocks and trades csv data files.
-- `/seed.ts`: Data preparation script to read data files and populate into Astra DB.
-- `.gitignore`: Specifies files to be ignored by Git.
-- `README.md`: Project documentation.
-- `package.json`: Project dependencies and scripts.
-- `next.config.js`: Next.js configuration file.
+1. Create a `.env` file at the root of your project. You can copy `.env.example` as an example. [TODO could we just give them a .env file as one of the starting files and have them just replace placeholders?]
+1. In the [Astra Portal](https://astra.datastax.com/), navigate to your database.
+1. Under **Database Details** in the portal, copy your database's API endpoint.
+1. Store this value in a variable called `ASTRA_URI` in your `.env` file. [TODO super minor: if this app uses `ASTRA_DB_API_ENDPOINT` as the var name, it will align with the docs convention]
+1. Under **Database Details** in the portal, click **Generate Token**, then copy the token.
+1. Store this value in a variable called `ASTRA_TOKEN` in your `.env` file. [TODO super minor: if this app uses `ASTRA_DB_APPLICATION_TOKEN` as the var name, it will align with the docs convention]
 
+## Look at the data
 
+Before adding data to your database, take a look at the structure of the data that you will be adding.
 
-## NoSQL Journey
+[TODO describe the data structure]
 
+## Collections journey
 
+Collections are good for data that is not fully structured, or for cases where you do not want to use a fixed schema
 
-### Create .env file
-By now you should have Astra DB endpoint and token ready.
-Then you can reference the [.env.example](./env.example) file, and create a new file ".env".
+TODO right now the app uses the `USE_COLLECTION` env var. I think this is a cool toggle and makes it easy to see when you do one thing vs another for tables vs collections, but it also adds complexity for people trying to read the code. What do we think about not having that toggle? If we decide to keep it, tell users here to set the var.
 
-> ASTRA_URI="YOUR_ASTRA_DB_ENDPOINT"
-> ASTRA_TOKEN="YOUR_ASTRA_TOKEN"
-> USE_COLLECTION="true" # Please set to "true" first, this is the flag indicates whether to use collection or table in the demo app.
+### Write an interface to represent the data
 
-Sample values:
-> ASTRA_URI="https://8ef953b8-8d8e-439d-ae3e-9e1b551c21db-us-east-2.apps.astra.datastax.com"
->ASTRA_TOKEN="AstraCS:DhksOhSxxxxxxxxx"
->USE_COLLECTION="true"
+TODO this is more of a TS thing than a datastax thing. Do we just want to provide the `Trade` and `Stock` interfaces for them? Either way, we should explain that this is just good TS practice, but isn't required (e.g. you could have a very open-ended document structure and just use `Any`). Also, either way, we should align on what we want to store in the database (e.g. we could store one document per stock, or one document per trade. In this workshop, we are going to do both, across 2 collections.)
 
+### Write a function to connect to your database
 
-### Populate Astra DB (collection path)
-Have a look at [seed.ts](./src/lib/seed.ts) script file.
-This file is for reading stocks and trades csv data files and then inserting into Astra DB.
+To use the Data API via the TypeScript client, you need to initialize the client. Then, you need to get your database.
 
-> Note the script has two paths, collection or tables. It means the demo app will be supported by Astra Data API collection or table. The path will be determined by the USE_COLLECTION enviroment variable you just set in .env file.
+The function should:
 
-Run the script with following command.
-```sh
-npm run seed
-```
+1. Get the database endpoint and application token from the your .env file
+1. Create an instance of the `DataAPIClient` class (from the `@datastax/astra-db-ts` library) with your token.
+1. Get and return the database specified by your endpoint.
 
-After the script finished, you can check on your data explorer in AstraDB portal.
+TODO the `getAstraClient` function returns a database, but the name makes it sound like it returns a client. It also might be nice to have the constants in the `src/lib/astradb.ts` file scoped to that function?
+
+TODO show the final function here so they can compare.
+
+### Write a function to add stock data to a collection
+
+The function should:
+
+1. Create a collection.
+
+   Hint: Use the `createCollection` method. TODO add link to the docs and maybe put this hint under a collapsible.
+
+1. For every row in the `nasdaq_stocks.csv` file, add a document to the collection.
+
+Bonus: Make your function catch errors when reading the CSV file or inserting data.
+
+TODO show the final function here so they can compare.
+
+### Write a function to add trade data to a collection
+
+The function should:
+
+1. Create a collection.
+
+   Hint: Use the `createCollection` method. TODO add link to the docs and maybe put this hint under a collapsible.
+1. For every stock, for every trade of that stock (every row in the corresponding CSV file), insert a document to the collection.
+
+   Hint: Iterate over the data files. Read each file row by row. For each row, parse the row into a JSON object (a document). You should convert strings to proper data types like ints and dates when relevant. Build a JSON array of these JSON objects. Then use `insertMany`
+
+Bonus: Make your function catch errors when reading the CSV file or inserting data.
+
+TODO show the final function here so they can compare.
+
+TODO for timing reasons, should we just have them write one of these functions? Or should we just timebox them and give them the solution after x minutes?
+
+### Hook up your functions
+
+You want to run these functions once, to insert the data to your database.
+
+TODO do we want to tell people to do this, or do we want to just rely on the checkpoint alignment below?
+
+### Checkpoint
+
+TODO have a branch that people can check out so everyone is on the same page. The branch should have the functions to add data to the collection written already.
+
+Also tell people about the extra things we added, like deleting existing data.
+
+If we don't want to tell people to do this, we need to be very prescriptive above about what collection name and document structure to use, function names, etc.
+
+### Run your functions
+
+TODO tell people to run `npm run seed` (or some other command, if we split up the table and collection logic as proposed above.) Alternatively, we could put a "initialize data" button in the UI.
+
+### Inspect your data
+
+1. In the [Astra Portal](https://astra.datastax.com/), navigate to your database.
+1. You should see two collections, one with the stock symbols and names, and one with the trade data.
 
 ![collections in AstraDB](./public/check-astra-portal.png)
 
-> Note since we set the app path as collection, you can see two collections instead of tables are created and populated. 
+Congrats! You now have data in your database.
 
+### Write functions
 
+Now that you have data in your database, you can write functions to use the data.
 
-### Start the app (collection path)
-Now we have the data ready in your AstraDB, then we can start the app in your local and see how it looks with Astra support!
+TODO lead the user through writing the `getStocksFromAstra` and `getTradesFromAstra` functions.
 
-Since it is the first time running the app, install all the dependencies first.
-```sh
-npm install
-```
+### Hook up your functions
 
-Then start the app with following command.
-```sh
-npm run dev
-```
+You want to run these functions to populate the app UI with stock and trade info.
 
-Once the app is ready, bring the front-end UI up in [http://localhost:3000](http://localhost:3000)
+TODO do we want to tell people to do this, or do we want to just rely on the checkpoint alignment below?
 
+### Checkpoint
 
-### Populate Astra DB (table path)
-Instead of using a Data API collection, Astra Data API has a new feature previewed, which is Data API tables. Now you can read/write on a regular cassandra table by using Astra Data API.
+TODO have a branch that people can check out so everyone is on the same page. The branch should have the functions to fetch data from the collection written already.
 
-Now change the USE_COLLECTION variable to "false" in your .env file to indicate the app will be using Data API tables.
+Also tell people about the extra things we added, like the UI code.
 
-Run the script with following command.
-```sh
-npm run seed
-```
+If we don't want to tell people to do this, we need to be very prescriptive above about function names and locations, etc.
 
-After the script finished, you can check on your data explorer in AstraDB portal. You can see there are two additional tables in your DB.
+### Run the app
 
-![tables in AstraDB](./public/tables-astra.png)
+Run `npm run dev`, then navigate to `http://localhost:3000`.
 
+## Tables journey
 
-### Start the app (table path)
-Without restart the app, you can see the UI brings up successfully, that is all supported by Data API tables.
+Tables are good if your data is fully structured and you want to use a fixed schema.
 
+TODO same question as above about the `USE_COLLECTION` toggle.
 
+TODO add steps to have the user write the data api functions for the table version of the app.
 
-## Deploying to Vercel
-To deploy the app to Vercel, follow these steps:
+## Next steps
 
-1. You should fork the repo and pushed codes to your own github repo.
-2. Login into [vercel](https://vercel.com/login).
-3. On the Overview page, click (Add New..) -> (Project) -> (import Git Repository you just created).
-4. On the project creation page, leave everything as default, add new environment variables.
-> ASTRA_URI : "YOUR_ASTRA_DB_ENDPOINT"
-> ASTRA_TOKEN : "YOUR_ASTRA_TOKEN"
-> USE_COLLECTION : "true" # Choose "true"/"false" based on the data in your AstraDB, by now, you should be able to choose either one if you did not delete any data. 
-5. Once the build finishes, you will see the dashboard!
+### Deploy your app
 
-![App deployed on Vercel](./public/deploy_vercel.png)
+TODO include the steps from Yuqi's original readme. I'm not sure if there will be time for this in the workshop though, especially if we want people to have time to explore the data API. Can wait to use list the vercel account prereq until here.
