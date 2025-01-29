@@ -20,7 +20,7 @@ To get started with this project, ensure you have the following:
 - **Node.js**: Version 22 or above. 
 - **Astra DB**: Obtain the endpoint and token.
 - **GitHub Account**: For git operation and vercel use.
-- **Vercel Account**: For deploying the app in vercel.
+- **Vercel Account**: A free vercel account for deploying the app in vercel.
 
 ### Astra DB prerequisites
 1. Create a database in astra.
@@ -86,6 +86,11 @@ Then you can reference the [.env.example](./env.example) file, and create a new 
 > ASTRA_TOKEN="YOUR_ASTRA_TOKEN"
 > USE_COLLECTION="true" # Please set to "true" first, this is the flag indicates whether to use collection or table in the demo app.
 
+Sample values:
+> ASTRA_URI="https://8ef953b8-8d8e-439d-ae3e-9e1b551c21db-us-east-2.apps.astra.datastax.com"
+>ASTRA_TOKEN="AstraCS:DhksOhSxxxxxxxxx"
+>USE_COLLECTION="true"
+
 
 ### Populate Astra DB (collection path)
 Have a look at [seed.ts](./src/lib/seed.ts) script file.
@@ -145,3 +150,10 @@ Without restart the app, you can see the UI brings up successfully, that is all 
 ## Deploying to Vercel
 To deploy the app to Vercel, follow these steps:
 
+1. You should fork the repo and pushed codes to your github repo.
+2. Login into [vercel](https://vercel.com/login).
+3. On the Overview page, click (Add New..) -> (Project) -> (import Git Repository you just created).
+4. On the project creation page, leave everything as default, add new environment variables.
+> ASTRA_URI : "YOUR_ASTRA_DB_ENDPOINT"
+> ASTRA_TOKEN : "YOUR_ASTRA_TOKEN"
+> USE_COLLECTION : "true" # Choose "true"/"false" based on the data in your AstraDB, by now, you should be able to choose either one if you did not delete any data. 

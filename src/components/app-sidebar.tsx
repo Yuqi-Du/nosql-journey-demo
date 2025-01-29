@@ -2,7 +2,6 @@
 
 import * as React from "react"
 
-import { SearchForm } from "@/components/search-form"
 import { VersionSwitcher } from "@/components/version-switcher"
 import {
   Sidebar,
@@ -17,9 +16,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { Stock } from '@/lib/model';
-
-import { getAstraClient } from "@/lib/astradb"
-import { getStocksFromAstra } from "@/lib/model"
 
 // This is sample data.
 const data = {

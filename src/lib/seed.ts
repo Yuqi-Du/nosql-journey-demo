@@ -1,4 +1,6 @@
-require('dotenv').config();
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { config } from 'dotenv';
+config();
 
 import * as fs from "fs";
 import csv from "csv-parser";
@@ -58,9 +60,7 @@ async function populateDB() {
  */
 async function readFromStockAndInsertCollection(client: Db): Promise<Stock[]> {
     // Create or retrieve the collection
-    const stock_collection = await client.createCollection("stock_collection", {
-      checkExists: false,
-    });
+    const stock_collection = await client.createCollection("stock_collection");
   
     const stocks: Stock[] = [];
     const filePath = "./src/lib/datasets/nasdaq_stocks.csv"; 
@@ -103,9 +103,7 @@ async function readFromStockAndInsertCollection(client: Db): Promise<Stock[]> {
  */
 async function readFromTradeAndInsertCollection(client: Db, stocks: Stock[]): Promise<void> {
     // Create or retrieve the collection
-    const trade_collection = await client.createCollection("trade_collection", {
-        checkExists: false,
-    });
+    const trade_collection = await client.createCollection("trade_collection");
 
     for (const stock of stocks) {
         const filePath = `./src/lib/datasets/${stock.symbol}_1Y.csv`; // Path to your CSV file for each stock

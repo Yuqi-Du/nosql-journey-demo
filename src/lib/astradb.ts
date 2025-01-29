@@ -1,5 +1,6 @@
 "use server";
-require('dotenv').config();
+import { config } from 'dotenv';
+config();
 
 import { DataAPIClient } from '@datastax/astra-db-ts';
 
@@ -16,7 +17,7 @@ if (!process.env.USE_COLLECTION) {
 const astra_uri = process.env.ASTRA_URI;
 const astra_token = process.env.ASTRA_TOKEN;
 
-let client = new DataAPIClient(astra_token)
+const client = new DataAPIClient(astra_token)
 const db = client.db(astra_uri);
 
 /**

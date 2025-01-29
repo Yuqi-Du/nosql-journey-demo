@@ -1,4 +1,3 @@
-import { Db } from "@datastax/astra-db-ts";
 import { getAstraClient } from "./astradb";
 
 export type Stock = {

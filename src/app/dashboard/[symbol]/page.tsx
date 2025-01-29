@@ -7,6 +7,8 @@ import { Separator } from '@radix-ui/react-separator';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { use_collection } from '@/lib/astradb';
 
+type Params = Promise<{ symbol: string }>;
+
 /**
  * This is a server component for the stock main dashboard.
  * It resolves selected stockSymbol from the url and fetches trades data from AstraDB, then renders the dashboard.
@@ -15,12 +17,12 @@ import { use_collection } from '@/lib/astradb';
  * More info on dynamic routing can be found here: https://beta.nextjs.org/docs/routing/dynamic-routes
  * 
  */
-export default async function Dashboard({params}: {params: {symbol: string}}) {
+export default async function Dashboard({params}: {params: Params}) {
   const {symbol} = await params;
 
   // read stocks and trades data from AstraDB
-  var stocks : Stock[] =  await getStocksFromAstra(await use_collection());
-  var trades : Trade[] = [];
+  const stocks : Stock[] =  await getStocksFromAstra(await use_collection());
+  let trades : Trade[] = [];
   if(symbol !== "default") {
     trades = await getTradesFromAstra(await use_collection(), symbol);
   }
