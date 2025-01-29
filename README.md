@@ -150,10 +150,13 @@ Without restart the app, you can see the UI brings up successfully, that is all 
 ## Deploying to Vercel
 To deploy the app to Vercel, follow these steps:
 
-1. You should fork the repo and pushed codes to your github repo.
+1. You should fork the repo and pushed codes to your own github repo.
 2. Login into [vercel](https://vercel.com/login).
 3. On the Overview page, click (Add New..) -> (Project) -> (import Git Repository you just created).
 4. On the project creation page, leave everything as default, add new environment variables.
 > ASTRA_URI : "YOUR_ASTRA_DB_ENDPOINT"
 > ASTRA_TOKEN : "YOUR_ASTRA_TOKEN"
 > USE_COLLECTION : "true" # Choose "true"/"false" based on the data in your AstraDB, by now, you should be able to choose either one if you did not delete any data. 
+5. Once the build finishes, you will see the dashboard!
+
+![App deployed on Vercel](./public/deploy_vercel.png)
