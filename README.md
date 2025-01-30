@@ -1,16 +1,13 @@
 **Welcome to the SKO NoSQL journey!**
 You are seeing the stock data fullStack demo app. This app is built using [AstraDB](https://docs.datastax.com/en/astra-db-serverless/index.html), [Astra Data API](https://docs.datastax.com/en/astra-db-serverless/api-reference/dataapiclient.html), [Data API TypeScript client](https://docs.datastax.com/en/astra-db-serverless/api-reference/typescript-client.html), [Next.js](https://nextjs.org/docs), and [Vercel](https://vercel.com/).
 
-In this journey, you will follow the README to implement the app in two paths:
+In this journey, you will follow the README to implement the app with
 1. **Data API Collection**: [Learn more](https://docs.datastax.com/en/astra-db-serverless/api-reference/collections.html)
 2. **Data API Table**: [Learn more](https://docs.datastax.com/en/astra-db-serverless/api-reference/tables.html)
 
 You will see the app UI on your local machine and eventually deploy it to Vercel.
 
-We aim to provide an experience where you can appreciate the fast speed of Astra for reading/writing data, the ease of using the Data API for interacting with your Astra DB, and the seamless transition between using Data API collections and tables.
-
-[Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
+We aim to provide an experience where you can appreciate the fast speed of Astra for reading/writing data, the ease of using the Data API collections and tables for interacting with your Astra DB.
 
 
 ## Prerequisites
@@ -73,10 +70,7 @@ The project directory is organized as follows:
 - `next.config.js`: Next.js configuration file.
 
 
-
 ## NoSQL Journey
-
-
 
 ### Create .env file
 By now you should have Astra DB endpoint and token ready.
@@ -84,34 +78,24 @@ Then you can reference the [.env.example](./env.example) file, and create a new 
 
 > ASTRA_DB_API_ENDPOINT="YOUR_ASTRA_DB_ENDPOINT"
 > ASTRA_DB_APPLICATION_TOKEN="YOUR_ASTRA_TOKEN"
-> USE_COLLECTION="true" # Please set to "true" first, this is the flag indicates whether to use collection or table in the demo app.
 
 Sample values:
 > ASTRA_DB_API_ENDPOINT="https://8ef953b8-8d8e-439d-ae3e-9e1b551c21db-us-east-2.apps.astra.datastax.com"
->ASTRA_DB_APPLICATION_TOKEN="AstraCS:DhksOhSxxxxxxxxx"
->USE_COLLECTION="true"
+> ASTRA_DB_APPLICATION_TOKEN="AstraCS:DhksOhSxxxxxxxxx"
 
 
-### Populate Astra DB (collection path)
+### Populate Astra DB 
 Have a look at [seed.ts](./src/lib/seed.ts) script file.
-This file is for reading stocks and trades csv data files and then inserting into Astra DB.
-
-> Note the script has two paths, collection or tables. It means the demo app will be supported by Astra Data API collection or table. The path will be determined by the USE_COLLECTION enviroment variable you just set in .env file.
 
 Run the script with following command.
 ```sh
 npm run seed
 ```
 
-After the script finished, you can check on your data explorer in AstraDB portal.
-
-![collections in AstraDB](./public/check-astra-portal.png)
-
-> Note since we set the app path as collection, you can see two collections instead of tables are created and populated. 
+You can verify in the Astra portal, there are stock and trade data in your DB now.
 
 
-
-### Start the app (collection path)
+### Start the app
 Now we have the data ready in your AstraDB, then we can start the app in your local and see how it looks with Astra support!
 
 Since it is the first time running the app, install all the dependencies first.
@@ -127,26 +111,6 @@ npm run dev
 Once the app is ready, bring the front-end UI up in [http://localhost:3000](http://localhost:3000)
 
 
-### Populate Astra DB (table path)
-Instead of using a Data API collection, Astra Data API has a new feature previewed, which is Data API tables. Now you can read/write on a regular cassandra table by using Astra Data API.
-
-Now change the USE_COLLECTION variable to "false" in your .env file to indicate the app will be using Data API tables.
-
-Run the script with following command.
-```sh
-npm run seed
-```
-
-After the script finished, you can check on your data explorer in AstraDB portal. You can see there are two additional tables in your DB.
-
-![tables in AstraDB](./public/tables-astra.png)
-
-
-### Start the app (table path)
-Without restart the app, you can see the UI brings up successfully, that is all supported by Data API tables.
-
-
-
 ## Deploying to Vercel
 To deploy the app in Vercel, follow these steps:
 
@@ -156,7 +120,6 @@ To deploy the app in Vercel, follow these steps:
 4. On the project creation page, leave everything as default, add new environment variables.
 > ASTRA_DB_API_ENDPOINT : "YOUR_ASTRA_DB_ENDPOINT"
 > ASTRA_DB_APPLICATION_TOKEN : "YOUR_ASTRA_TOKEN"
-> USE_COLLECTION : "true" # Choose "true"/"false" based on the data in your AstraDB, by now, you should be able to choose either one if you did not delete any data. 
 5. Once the build finishes, you will see the dashboard!
 
 ![App deployed on Vercel](./public/deploy_vercel.png)

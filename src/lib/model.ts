@@ -19,24 +19,15 @@ export type Trade = {
 const stocks : Stock[] = [];
 
 /**
- * This method is to read stocks data from AstraDB.
- * Note, it takes a table name as parameter, and return a list of stocks.
- * So, this table name can from a
- * 1. Collection
- * 2. Table
+ * This method is to read stocks data from a collection in AstraDB.
  */
-export async function getStocksFromAstra(isCollection: boolean): Promise<Stock[]> {
+export async function getStocksFromAstra(): Promise<Stock[]> {
     if(stocks.length > 0){
         return stocks;
     }
     const dbClient = await getAstraClient();
 
-    let stock_client;
-    if(isCollection){
-        stock_client = dbClient.collection("stock_collection");
-    }else{
-        stock_client = dbClient.table("stock_table");
-    }
+    const stock_client = dbClient.collection("stock_collection");
 
     try {
         const cursor =  stock_client.find({});
@@ -49,6 +40,10 @@ export async function getStocksFromAstra(isCollection: boolean): Promise<Stock[]
         }
         return stocks;
     }catch(error){
+        if (error.message.includes("Collection does not exist")) {
+            console.error("Collection does not exist:", error);
+            return stocks;
+        }
         console.error("Error getting data from database:", error);
         throw error;
     }
@@ -56,26 +51,16 @@ export async function getStocksFromAstra(isCollection: boolean): Promise<Stock[]
 
 
 /**
- * This method is to read trades data from AstraDB.
- * Note, it takes a table name as parameter, and return a list of stocks.
- * So, this table name can from a
- * 1. Collection
- * 2. Table
+ * This method is to read trades data from a table in AstraDB.
  */
-export async function getTradesFromAstra(isCollection: boolean, stockSymbol: string): Promise<Trade[]> {
+export async function getTradesFromAstra( stockSymbol: string): Promise<Trade[]> {
     const dbClient = await getAstraClient();
 
-    let trade_client;
-    if(isCollection){
-        trade_client = dbClient.collection("trade_collection");
-    }else{
-        trade_client = dbClient.table("trade_table");
-    }
-    
+    const trade_client = dbClient.table("trade_table");
+    const trades: Trade[] = []; 
 
     try {
         const cursor =  trade_client.find({symbol: stockSymbol});
-        const trades: Trade[] = []; 
         for await (const document of cursor) {
             const trade: Trade = {
                 symbol: document.symbol, 
@@ -91,6 +76,10 @@ export async function getTradesFromAstra(isCollection: boolean, stockSymbol: str
         }
         return trades;
     }catch(error){
+        if (error.message.includes("Collection does not exist")) {
+            console.error("Collection does not exist:", error);
+            return trades;
+        }
         console.error("Error getting data from database:", error);
         throw error;
     }

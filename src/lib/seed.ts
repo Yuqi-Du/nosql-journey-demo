@@ -6,7 +6,7 @@ import * as fs from "fs";
 import csv from "csv-parser";
 import { Db } from '@datastax/astra-db-ts';
 import { Stock, Trade} from './model';
-import { getAstraClient, use_collection } from "./astradb";
+import { getAstraClient} from "./astradb";
 
 
 /**
@@ -20,17 +20,13 @@ populateDB().catch(error => {
 
 
 /**
- * This method is to seed the AstraDB with initial data.
+ * This method is to seed the AstraDB with stock data.
  * 
- * As you can see in the method body, data seeding flow can be achieved with two paths:
- * 1. Astra Data API collection
- * 2. Astra Data API table
- * 
- * Each path(collection/table) will perform the following steps:
+ * Data seeding flow) will perform the following steps:
  * 1. Establishe a connection to the AstraDB using the Data API typescript client.
  * 2. Delete any existing data in the AstraDB.
- * 3. Read stock data from csv and inserts it into a collection/table in the AstraDB.
- * 4. Read trade data from csv and inserts it into the collection/table in the AstraDB.
+ * 3. Read stock data from csv and inserts it into a collection in the AstraDB.
+ * 4. Read trade data from csv and inserts it into a table in the AstraDB.
  * 
  */
 async function populateDB() {
@@ -38,15 +34,11 @@ async function populateDB() {
     const client = await getAstraClient();
     await deleteExistingDataInAstra(client)
     
-    if(await use_collection()){
-        //1. Astra Data API collection
-        const stocks = await readFromStockAndInsertCollection(client);
-        await readFromTradeAndInsertCollection(client, stocks);
-    }else{
-        //2. Astra Data API table
-        const stocks = await readFromStockAndInsertTable(client);
-        await readFromTradeAndInsertTable(client, stocks);
-    }
+    // Read stock data from csv and inserts it into a collection in the AstraDB.
+    const stocks = await readFromStockAndInsertCollection(client);
+
+    // Read trade data from csv and inserts it into the table in the AstraDB.
+    await readFromTradeAndInsertTable(client, stocks);
 }
 
 
@@ -59,6 +51,8 @@ async function populateDB() {
  * csv file path: ./src/lib/datasets/nasdaq_stocks.csv
  */
 async function readFromStockAndInsertCollection(client: Db): Promise<Stock[]> {
+    console.log("Start to parsing nasdaq_stocks CSV. Inserting into database...");
+
     // Create or retrieve the collection
     const stock_collection = await client.createCollection("stock_collection");
   
@@ -93,110 +87,6 @@ async function readFromStockAndInsertCollection(client: Db): Promise<Stock[]> {
     });
   }
 
-
-/**
- * This method is to read trades data from csv files and inserts into a collection in the AstraDB.
- * 
- * collection: trade_collection
- * csv file path: ./src/lib/datasets/${stockSymbol}_1Y.csv
- * Note, each trade data csv represents a single stock, and it contains trades metadata for 1 year.
- */
-async function readFromTradeAndInsertCollection(client: Db, stocks: Stock[]): Promise<void> {
-    // Create or retrieve the collection
-    const trade_collection = await client.createCollection("trade_collection");
-
-    for (const stock of stocks) {
-        const filePath = `./src/lib/datasets/${stock.symbol}_1Y.csv`; // Path to your CSV file for each stock
-
-        await new Promise<void>((resolve, reject) => {
-            const trades : Trade[] = [];
-            fs.createReadStream(filePath)
-                .pipe(csv())
-                .on("data", (row) => {
-                    const trade = {
-                        symbol: stock.symbol,
-                        fullName: stock.fullName,
-                        date: new Date(row["Date"]),
-                        high: parseFloat(row["High"].replace('$', '')),
-                        low: parseFloat(row["Low"].replace('$', '')),
-                        open: parseFloat(row["Open"].replace('$', '')),
-                        close: parseFloat(row["Close/Last"].replace('$', '')),
-                        volume: parseInt(row["Volume"], 10),
-                      };
-                    trades.push(trade);
-                })
-                .on("end", async () => {
-                    console.log(`Finished parsing ${stock.symbol}_1Y CSV. Inserting into database...`);
-                    try {
-                        await trade_collection.insertMany(trades);
-                        console.log(`Collection trade_collection populated successfully for ${stock.symbol}!`);
-                        resolve();
-                    } catch (error) {
-                        console.error(`Error inserting data into database for ${stock.symbol}:`, error);
-                        reject(error);
-                    }
-                })
-                .on("error", (error) => {
-                    console.error(`Error reading CSV file for ${stock.symbol}:`, error);
-                    reject(error);
-                });
-        });
-    }
-}
-
-/**
- * This method is to read stock data from a csv file and inserts into a table in the Astra database.
- * 
- * table: stock_table
- * cvs file: nasdaq_stocks.csv
- * csv file path: ./src/lib/datasets/nasdaq_stocks.csv
- */
-async function readFromStockAndInsertTable(client: Db): Promise<Stock[]> {
-    const stock_table = await client.createTable('stock_table', {
-        definition: {
-          columns: {
-            symbol: 'text',
-            fullName: 'text'
-          },
-          primaryKey: {
-            partitionBy: ['symbol']
-          },
-        },
-        ifNotExists: true,
-      });
-
-     const stocks: Stock[] = [];
-     const filePath = "./src/lib/datasets/nasdaq_stocks.csv"; 
-   
-     return new Promise((resolve, reject) => {
-       fs.createReadStream(filePath)
-         .pipe(csv())
-         .on("data", (row) => {
-           const stock: Stock = {
-             symbol: row["Symbol"],
-             fullName: row["Name"],
-           };
-           stocks.push(stock);
-         })
-         .on("end", async () => {
-           console.log("Finished parsing nasdaq_stocks CSV. Inserting into database...");
-           try {
-             await stock_table.insertMany(stocks);
-             console.log("stock_table stock_table populated successfully!");
-             resolve(stocks);
-           } catch (error) {
-             console.error("Error inserting data into database:", error);
-             reject(error);
-           }
-         })
-         .on("error", (error) => {
-           console.error("Error reading CSV file:", error);
-           reject(error);
-         });
-     });  
-  }
-
-
 /**
  * This method is to read trades data from csv files and inserts into a table in the Astra database.
  * 
@@ -205,6 +95,8 @@ async function readFromStockAndInsertTable(client: Db): Promise<Stock[]> {
  * Note, each trade data csv represents a single stock, and it contains trades metadata for 1 year.
  */
 async function readFromTradeAndInsertTable(client: Db, stocks: Stock[]): Promise<void> {
+    console.log("Start to parsing stock trades CSVs. Inserting into database...");
+
     const trade_table = await client.createTable('trade_table', {
         definition: {
           columns: {
@@ -270,9 +162,9 @@ async function readFromTradeAndInsertTable(client: Db, stocks: Stock[]): Promise
 /**
  * Deletes existing data in Astra by truncating the specified collections and tables.
  * 
- * This function attempts to delete all documents from: 
- * 1. collectios: "stock_collection" and "trade_collection"
- * 2. table: "trade_table" and "stock_table"
+ * This function attempts to delete all rows from: 
+ * 1. collectios: "stock_collection"
+ * 2. table: "trade_table"
  * 
  */
 async function deleteExistingDataInAstra(client: Db): Promise<void> {
@@ -281,14 +173,6 @@ async function deleteExistingDataInAstra(client: Db): Promise<void> {
     // since table creation will take care of it.
     try {
         await client.collection("stock_collection").deleteMany({});
-    } catch (error) {
-    }
-    try {
-        await client.collection("trade_collection").deleteMany({});
-    } catch (error) {
-    }
-    try {
-        await client.table("trade_table").deleteMany({});
     } catch (error) {
     }
     try {

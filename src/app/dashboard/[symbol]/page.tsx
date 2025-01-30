@@ -5,7 +5,6 @@ import { columns } from "@/components/columns"
 import { getStocksFromAstra, getTradesFromAstra, Stock, Trade } from '@/lib/model';
 import { Separator } from '@radix-ui/react-separator';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { use_collection } from '@/lib/astradb';
 
 type Params = Promise<{ symbol: string }>;
 
@@ -21,10 +20,10 @@ export default async function Dashboard({params}: {params: Params}) {
   const {symbol} = await params;
 
   // read stocks and trades data from AstraDB
-  const stocks : Stock[] =  await getStocksFromAstra(await use_collection());
+  const stocks : Stock[] =  await getStocksFromAstra();
   let trades : Trade[] = [];
   if(symbol !== "default") {
-    trades = await getTradesFromAstra(await use_collection(), symbol);
+    trades = await getTradesFromAstra(symbol);
   }
 
   // dashboard component consists of 3 parts:

@@ -10,9 +10,6 @@ if (!process.env.ASTRA_DB_API_ENDPOINT) {
 if (!process.env.ASTRA_DB_APPLICATION_TOKEN) {
     throw new Error('Invalid/Missing environment variable: "ASTRA_DB_APPLICATION_TOKEN"');
 }
-if (!process.env.USE_COLLECTION) {
-    throw new Error('Invalid/Missing environment variable: "USE_COLLECTION"');
-}
 
 const astra_uri = process.env.ASTRA_DB_API_ENDPOINT;
 const astra_token = process.env.ASTRA_DB_APPLICATION_TOKEN;
@@ -32,11 +29,4 @@ export async function getAstraClient() {
   } catch (e) {
     throw e;
   }
-}
-
-/**
- * USE_COLLECTION is variable acts as a switcher to decide whether to use collection or table for the demo app.
- */
-export async function use_collection() {
-    return await (process.env.USE_COLLECTION === "true" ? true : false);
 }

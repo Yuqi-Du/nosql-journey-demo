@@ -5,18 +5,6 @@ import { ArrowUpDown } from "lucide-react"
 import { Button } from "./ui/button"
 import { Trade } from "@/lib/model"
 
-// // This type is used to define the shape of our data.
-// export type Trade = {
-//   symbol: string
-//   fullName: string
-//   date: Date
-//   high: number
-//   low: number
-//   open: number
-//   close: number
-//   volume: number
-// }
-
 export const columns: ColumnDef<Trade>[] = [
   {
     accessorKey: "symbol",
