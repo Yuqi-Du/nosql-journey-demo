@@ -89,7 +89,8 @@ Have a look at [seed.ts](./src/lib/seed.ts) script file.
 
 Run the script with following command.
 ```sh
-npm run seed
+npm run seedCollection
+npm run seedTable
 ```
 
 You can verify in the Astra portal, there are stock and trade data in your DB now.

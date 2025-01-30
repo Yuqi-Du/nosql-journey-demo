@@ -40,7 +40,7 @@ export async function getStocksFromAstra(): Promise<Stock[]> {
         }
         return stocks;
     }catch(error){
-        if (error.message.includes("Collection does not exist")) {
+        if (error instanceof Error && error.message.includes(("Collection does not exist"))) {
             console.error("Collection does not exist:", error);
             return stocks;
         }
@@ -76,8 +76,8 @@ export async function getTradesFromAstra( stockSymbol: string): Promise<Trade[]>
         }
         return trades;
     }catch(error){
-        if (error.message.includes("Collection does not exist")) {
-            console.error("Collection does not exist:", error);
+        if (error instanceof Error && error.message.includes(("Collection does not exist"))) {
+            console.error("table does not exist:", error);
             return trades;
         }
         console.error("Error getting data from database:", error);

@@ -20,72 +20,24 @@ populateDB().catch(error => {
 
 
 /**
- * This method is to seed the AstraDB with stock data.
+ * This method is to seed the AstraDB with trade data.
  * 
  * Data seeding flow) will perform the following steps:
  * 1. Establishe a connection to the AstraDB using the Data API typescript client.
  * 2. Delete any existing data in the AstraDB.
- * 3. Read stock data from csv and inserts it into a collection in the AstraDB.
- * 4. Read trade data from csv and inserts it into a table in the AstraDB.
+ * 3. Read trade data from csv and inserts it into a table in the AstraDB.
  * 
  */
 async function populateDB() {
 
     const client = await getAstraClient();
     await deleteExistingDataInAstra(client)
-    
-    // Read stock data from csv and inserts it into a collection in the AstraDB.
-    const stocks = await readFromStockAndInsertCollection(client);
+    const stocks = await getStocks();
 
     // Read trade data from csv and inserts it into the table in the AstraDB.
     await readFromTradeAndInsertTable(client, stocks);
 }
 
-
-
-/**
- * This method is to read stock data from a csv file and inserts into a collection in the AstraDB.
- * 
- * collection: stock_collection
- * cvs file: nasdaq_stocks.csv
- * csv file path: ./src/lib/datasets/nasdaq_stocks.csv
- */
-async function readFromStockAndInsertCollection(client: Db): Promise<Stock[]> {
-    console.log("Start to parsing nasdaq_stocks CSV. Inserting into database...");
-
-    // Create or retrieve the collection
-    const stock_collection = await client.createCollection("stock_collection");
-  
-    const stocks: Stock[] = [];
-    const filePath = "./src/lib/datasets/nasdaq_stocks.csv"; 
-  
-    return new Promise((resolve, reject) => {
-      fs.createReadStream(filePath)
-        .pipe(csv())
-        .on("data", (row) => {
-          const stock: Stock = {
-            symbol: row["Symbol"],
-            fullName: row["Name"],
-          };
-          stocks.push(stock);
-        })
-        .on("end", async () => {
-          console.log("Finished parsing nasdaq_stocks CSV. Inserting into database...");
-          try {
-            await stock_collection.insertMany(stocks);
-            console.log("collection stock_collection populated successfully!");
-            resolve(stocks);
-          } catch (error) {
-            console.error("Error inserting data into database:", error);
-            reject(error);
-          }
-        })
-        .on("error", (error) => {
-          console.error("Error reading CSV file:", error);
-          reject(error);
-        });
-    });
-  }
 
 /**
  * This method is to read trades data from csv files and inserts into a table in the Astra database.
@@ -160,21 +112,15 @@ async function readFromTradeAndInsertTable(client: Db, stocks: Stock[]): Promise
 
 
 /**
- * Deletes existing data in Astra by truncating the specified collections and tables.
+ * Deletes existing data in Astra by truncating the table.
  * 
- * This function attempts to delete all rows from: 
- * 1. collectios: "stock_collection"
- * 2. table: "trade_table"
+ * This function attempts to delete all rows from "trade_table"
  * 
  */
 async function deleteExistingDataInAstra(client: Db): Promise<void> {
-    // Belowing deleteManycommands will truncate the Data API collection or table.
+    // Belowing deleteManycommands will truncate the Data API table.
     // It does not matter if the collection or table does not exist, we will ignore the error
     // since table creation will take care of it.
-    try {
-        await client.collection("stock_collection").deleteMany({});
-    } catch (error) {
-    }
     try {
         await client.table("stock_table").deleteMany({});
     } catch (error) {
@@ -182,3 +128,32 @@ async function deleteExistingDataInAstra(client: Db): Promise<void> {
   }
 
 
+
+/**
+ * This method is to read stock data from a csv file.
+ * cvs file: nasdaq_stocks.csv
+ * csv file path: ./src/lib/datasets/nasdaq_stocks.csv
+ */
+async function getStocks(): Promise<Stock[]> {
+  const stocks: Stock[] = [];
+  const filePath = "./src/lib/datasets/nasdaq_stocks.csv"; 
+
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on("data", (row) => {
+        const stock: Stock = {
+          symbol: row["Symbol"],
+          fullName: row["Name"],
+        };
+        stocks.push(stock);
+      })
+      .on("end", () => {
+        resolve(stocks);
+      })
+      .on("error", (error) => {
+        console.error("Error reading CSV file:", error);
+        reject(error);
+      });
+  });
+}
