@@ -82,13 +82,13 @@ The project directory is organized as follows:
 By now you should have Astra DB endpoint and token ready.
 Then you can reference the [.env.example](./env.example) file, and create a new file ".env".
 
-> ASTRA_URI="YOUR_ASTRA_DB_ENDPOINT"
-> ASTRA_TOKEN="YOUR_ASTRA_TOKEN"
+> ASTRA_DB_API_ENDPOINT="YOUR_ASTRA_DB_ENDPOINT"
+> ASTRA_DB_APPLICATION_TOKEN="YOUR_ASTRA_TOKEN"
 > USE_COLLECTION="true" # Please set to "true" first, this is the flag indicates whether to use collection or table in the demo app.
 
 Sample values:
-> ASTRA_URI="https://8ef953b8-8d8e-439d-ae3e-9e1b551c21db-us-east-2.apps.astra.datastax.com"
->ASTRA_TOKEN="AstraCS:DhksOhSxxxxxxxxx"
+> ASTRA_DB_API_ENDPOINT="https://8ef953b8-8d8e-439d-ae3e-9e1b551c21db-us-east-2.apps.astra.datastax.com"
+>ASTRA_DB_APPLICATION_TOKEN="AstraCS:DhksOhSxxxxxxxxx"
 >USE_COLLECTION="true"
 
 
@@ -148,14 +148,14 @@ Without restart the app, you can see the UI brings up successfully, that is all 
 
 
 ## Deploying to Vercel
-To deploy the app to Vercel, follow these steps:
+To deploy the app in Vercel, follow these steps:
 
 1. You should fork the repo and pushed codes to your own github repo.
 2. Login into [vercel](https://vercel.com/login).
 3. On the Overview page, click (Add New..) -> (Project) -> (import Git Repository you just created).
 4. On the project creation page, leave everything as default, add new environment variables.
-> ASTRA_URI : "YOUR_ASTRA_DB_ENDPOINT"
-> ASTRA_TOKEN : "YOUR_ASTRA_TOKEN"
+> ASTRA_DB_API_ENDPOINT : "YOUR_ASTRA_DB_ENDPOINT"
+> ASTRA_DB_APPLICATION_TOKEN : "YOUR_ASTRA_TOKEN"
 > USE_COLLECTION : "true" # Choose "true"/"false" based on the data in your AstraDB, by now, you should be able to choose either one if you did not delete any data. 
 5. Once the build finishes, you will see the dashboard!
 

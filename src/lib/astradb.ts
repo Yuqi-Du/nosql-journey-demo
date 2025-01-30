@@ -4,18 +4,18 @@ config();
 
 import { DataAPIClient } from '@datastax/astra-db-ts';
 
-if (!process.env.ASTRA_URI) {
-  throw new Error('Invalid/Missing environment variable: "ASTRA_URI"');
+if (!process.env.ASTRA_DB_API_ENDPOINT) {
+  throw new Error('Invalid/Missing environment variable: "ASTRA_DB_API_ENDPOINT"');
 }
-if (!process.env.ASTRA_TOKEN) {
-    throw new Error('Invalid/Missing environment variable: "ASTRA_TOKEN"');
+if (!process.env.ASTRA_DB_APPLICATION_TOKEN) {
+    throw new Error('Invalid/Missing environment variable: "ASTRA_DB_APPLICATION_TOKEN"');
 }
 if (!process.env.USE_COLLECTION) {
     throw new Error('Invalid/Missing environment variable: "USE_COLLECTION"');
 }
 
-const astra_uri = process.env.ASTRA_URI;
-const astra_token = process.env.ASTRA_TOKEN;
+const astra_uri = process.env.ASTRA_DB_API_ENDPOINT;
+const astra_token = process.env.ASTRA_DB_APPLICATION_TOKEN;
 
 const client = new DataAPIClient(astra_token)
 const db = client.db(astra_uri);
